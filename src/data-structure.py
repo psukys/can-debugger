@@ -1,6 +1,6 @@
 from datetime import datetime
 
-class CANDataObject:
+class CANNode:
     """The most simplest data structure
     which is self implied by CAN dump
     """
@@ -43,3 +43,4 @@ class CANDataObject:
                                     self.addr,
                                     self.data)
 
+class 
