@@ -9,6 +9,20 @@ One dump line represents one data dump (DATA_DUMP) from and address(ADDRESS_WHER
 
 For receiving this data I used [candump from can-utils](https://gitorious.org/linux-can/can-utils). Regardless, you can always adapt data read by changing the source (See defaults.conf).
 
-Next step is connecting this simple data-structure by a truly unique identifier: the address.
+Next step is connecting this simple data-structure by a truly unique identifier: the address, thus getting everything in such structure:
 
+    ADDRESS_WHERE_DATA_DUMP_CAME_FROM:
+        <TIME_DATA_DUMP_TAKEN1> DATA_DUMP1
+        <TIME_DATA_DUMP_TAKEN2> DATA_DUMP2
+        <TIME_DATA_DUMP_TAKEN3> DATA_DUMP3
+        <TIME_DATA_DUMP_TAKEN4> DATA_DUMP4
+
+Lastly, since we're debugging information, there might as well be some kind of test dump file (or any other source) ready, it might have several addresses of aforementioned structure.
+
+Visually (DIAGRAM COMING) this would look:
+            test case  
+        /       |       \
+    addr1     addr2     addr3
+   /  |       /  |       |  \
+addr data   addr data  addr data
 For implementation see [data-structure.py](../src/data-structure.py)
