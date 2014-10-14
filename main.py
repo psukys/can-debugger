@@ -34,12 +34,7 @@ def save_as_text(f, src_tc, trg_tc, diff_addrs):
 
 
 def save_as_csv(f, src_tc, trg_tc, diff_addrs):
-    fn = ["Address", "Data", "Occurrence", "In source", "In target"]
-    csv_writer = csv.writer(f, delimiter=",", quotechar='"', fieldnames=fn)
-    for addr in diff_addrs:
-        n_src = src_tc.nodes[src_tc.get_index_by_addr(addr)]
-        n_trg = trg_tc.nodes[trg_tc.get_index_by_addr(addr)]
-        
+    raise NotImplementedError("Method not implemented")
 
 
 def console_interactive_mode(src_tc, trg_tc, diff_addrs):
