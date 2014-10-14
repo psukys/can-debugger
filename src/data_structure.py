@@ -49,17 +49,20 @@ class CANNode:
         return "Address: {0}, data points: {1}".format(self.addr,
                                                        len(self.data))
 
+
 class CANTestCase:
+
     """CAN test case
     it is used for setting up a test case for reading data
     one test case resides some kind of can dump on specific interest
     this can dump would be compared unto other can dumps and thus 
     """
+
     def __init__(self, filepath):
         self.nodes = []
-        #take last instance after spliting by dir
+        # take last instance after spliting by dir
         self.filename = filepath.split("/")[:-1]
-        #parse the data into objects
+        # parse the data into objects
 
         tmp_nodes = []
         with open(filepath) as f:
@@ -67,7 +70,7 @@ class CANTestCase:
                 (time, addr, data) = self.parse_line(line)
                 tmp_nodes.append((time, addr, data))
 
-        #group up
+        # group up
         for time, addr, data in tmp_nodes:
             idx = self.get_index_by_addr(addr)
             if idx is not None:
