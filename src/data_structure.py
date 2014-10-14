@@ -1,5 +1,5 @@
 from datetime import datetime
-
+import re
 
 class CANData:
 
@@ -43,7 +43,15 @@ class CANNode:
             time: time when can dump data point was taken
             data: data dump point
         """
-        self.data.update({utcfromtimestamp(float(time)): data})
+        self.data.update({time: data})
+
+    def list_data():
+        """List data list
+        """
+        string = ''
+        for d in data
+            string += "{0}\n".format(d)
+        return string
 
     def __str__(self):
         return "Address: {0}, data points: {1}".format(self.addr,
@@ -81,7 +89,7 @@ class CANTestCase:
                 self.nodes.append(n)
 
     def get_index_by_addr(self, addr):
-        for idx, val in enumerate(self.grouped_nodes):
+        for idx, val in enumerate(self.nodes):
             if val.addr == addr:
                 return idx
 
@@ -102,7 +110,7 @@ class CANTestCase:
         m = re.match(
             "\((\d+\.\d+)\) (\S+) ([0-9a-fA-F]+)#([0-9a-fA-F]+)", line)
 
-        time = utcfromtimestamp(float(m.group(1)))
+        time = datetime.utcfromtimestamp(float(m.group(1)))
         addr = m.group(3).strip()
         data = m.group(4).strip()
         return (time, addr, data)
