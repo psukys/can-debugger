@@ -76,3 +76,4 @@ target/
 #CAN-debugger specific:
 #data folder which will always be custom due to user
 data/
+diffs/
