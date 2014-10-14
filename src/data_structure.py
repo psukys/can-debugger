@@ -45,12 +45,22 @@ class CANNode:
         """
         self.data.update({time: data})
 
-    def list_data():
+    def list_data(self):
         """List data list
         """
         string = ''
-        for d in data
-            string += "{0}\n".format(d)
+        last_data = None
+        last_data_count = 0
+        for idx, time in enumerate(sorted(self.data)):
+            if last_data == self.data[time]:
+                last_data_count += 1
+            else:
+                if last_data_count != 0:
+                    string += " count {0}".format(last_data_count)
+                last_data = self.data[time]
+                last_data_count = 1
+                string += "\n\t{0}: {1}".format(time, self.data[time])
+        string += " count {0}\n".format(last_data_count)
         return string
 
     def __str__(self):
