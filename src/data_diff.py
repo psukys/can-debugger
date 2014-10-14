@@ -33,11 +33,3 @@ class CANDiff:
             else:
                 addrs.append(node.addr)
         return addrs
-
-    def get_diff_data(self, src, trg):
-        data = []
-        addrs = self.get_diff_addrs(src, trg)
-        for addr in addrs:
-            idx = src.get_index_by_addr(addr)
-            if idx is not None:
-                pass
