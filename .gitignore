@@ -77,3 +77,4 @@ target/
 #data folder which will always be custom due to user
 data/
 diffs/
+batch_diff.sh
