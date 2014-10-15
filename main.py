@@ -20,7 +20,8 @@ from src.data_diff import CANDiff
 def get_diff_data_str(src_tc, trg_tc, addr, outputgrp):
     """Also simple
     """
-    (src_diff, trg_diff) = CANDiff().get_diff_data(src_tc, trg_tc, addr)
+    (src_diff, trg_diff) = CANDiff().get_diff_data(
+        src_tc, trg_tc, addr)
     string = ''
     if src_diff is not None:
         string += "\n--- SOURCE: {0} ---\n".format(src_diff.addr)
@@ -38,6 +39,7 @@ def get_diff_data_str(src_tc, trg_tc, addr, outputgrp):
 
     return string
 
+
 def get_diffs_data_str(src_tc, trg_tc, outputgrp):
     """A simple wrap up for receiving basic diffs
     Args:
@@ -54,7 +56,7 @@ def get_diffs_data_str(src_tc, trg_tc, outputgrp):
     return string
 
 
-def get_diff_data_csv(src_tc, trg_tc):
+def get_diff_data_csv(src_tc, trg_tc, outputgrp):
     """A little less simple wrap up for receiving basic diffs for csv
     Args:
         src_tc: source test case
@@ -62,25 +64,38 @@ def get_diff_data_csv(src_tc, trg_tc):
     Returns:
         formatted array for csv writer
     """
-    data = CANDiff().get_diff_data(src_tc, trg_tc)
-    data_list = [[src_tc.filename, trg_tc.filename, "Address", "Time", "Data"]]
+    data = CANDiff().get_diffs_data(src_tc, trg_tc)
+    data_list = [[src_tc.filename, trg_tc.filename, "Address", "Data", "Count", "Time"]]
     for src_diff, trg_diff in data:
         if src_diff is not None:
+            last_data = src_diff.data[0].data
+            last_data_count = 1
             for src_data in src_diff.data:
-                data_list.append(["Yes", "No", src_diff.addr,
-                                  src_data.time, src_data.data])
+                if src_data.data == last_data:
+                    last_data_count += 1
+                else:
+                    data_list.append(["Yes", "No", src_diff.addr,
+                                  src_data.data, last_data_count, src_data.time])
+                    last_data_count = 1
+                    last_data = src_data.data
         else:
-            data_list.append(["Yes", "No", "None", "None", "None"])
+            data_list.append(["Yes", "No", "None", "None", "None", "None"])
 
         if trg_diff is not None:
+            last_data = trg_diff.data[0].data
+            last_data_count = 1
             for trg_data in trg_diff.data:
-                data_list.append(["No", "Yes", trg_diff.addr,
-                                  trg_data.time, trg_data.data])
+                if trg_data.data == last_data:
+                    last_data_count += 1
+                else:
+                    data_list.append(["No", "Yes", trg_diff.addr,
+                                  trg_data.data, last_data_count, trg_data.time])
+                    last_data_count = 1
+                    last_data = trg_data.data
         else:
             # normally should not happen, as trg is compared, not source
-            data_list.append(["No", "Yes", "None", "None", "None"])
-
-    return data
+            data_list.append(["No", "Yes", "None", "None", "None", "None"])
+    return data_list
 
 
 def save_as_text(f, src_tc, trg_tc, outputgrp):
@@ -91,7 +106,7 @@ def save_as_text(f, src_tc, trg_tc, outputgrp):
 
 def save_as_csv(f, src_tc, trg_tc, outputgrp):
     writer = csv.writer(f)
-    writer.writerows(get_diff_data_csv(src_tc, trg_tc))
+    writer.writerows(get_diff_data_csv(src_tc, trg_tc, outputgrp))
 
 
 def console_interactive_mode(src_tc, trg_tc, diff_addrs, outputgrp):
@@ -129,7 +144,7 @@ if __name__ == "__main__":
     targetfile = ''
     outputfile = ''
     outputfrmt = 'text'
-    outputgrp  = False
+    outputgrp = False
     """
     Option list:
         -s or --source for sourcefile
