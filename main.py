@@ -18,11 +18,15 @@ from src.data_diff import CANDiff
 
 
 def get_data_diffs(src_tc, trg_tc, addr):
-    string = "\n--- Address: {0} ---\n".format(addr)
-    string += "--- SOURCE ---\n{0}".format(
-        src_tc.nodes[src_tc.get_index_by_addr(addr)].list_data())
-    string += "--- TARGET ---\n{0}".format(
-        trg_tc.nodes[trg_tc.get_index_by_addr(addr)].list_data())
+    string = "\n--- Address: {0} ---\n\n".format(addr)
+    idx = src_tc.get_index_by_addr(addr)
+    if idx is not None:
+        string += "--- SOURCE ---{0}\n".format(
+          src_tc.nodes[src_tc.get_index_by_addr(addr)].list_data())
+    idx = trg_tc.get_index_by_addr(addr)
+    if idx is not None:
+        string += "--- TARGET ---{0}\n".format(
+          trg_tc.nodes[trg_tc.get_index_by_addr(addr)].list_data())
     return string
 
 
