@@ -1,6 +1,7 @@
 from datetime import datetime
 import re
 
+
 class CANData:
 
     """The most simplest data structure
@@ -88,7 +89,7 @@ class CANTestCase:
     def __init__(self, filepath):
         self.nodes = []
         # take last instance after spliting by dir
-        self.filename = filepath.split("/")[:-1]
+        self.filename = filepath.split("/")[-1]
         # parse the data into objects
 
         tmp_nodes = []

@@ -64,11 +64,10 @@ class CANDiff:
         Returns:
             a list of tuples where src diff data and trg diff data is
         """
-        data = []#empty tuple
+        data = []  # empty tuple
         diff_addrs = self.get_diff_addrs(src, trg)
 
         for addr in diff_addrs:
             data.append(self.get_diff_data(src, trg, addr))
 
         return data
-
