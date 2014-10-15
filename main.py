@@ -17,28 +17,73 @@ from src.data_structure import CANNode, CANTestCase
 from src.data_diff import CANDiff
 
 
-def get_data_diffs(src_tc, trg_tc, addr):
-    string = "\n--- Address: {0} ---\n\n".format(addr)
-    idx = src_tc.get_index_by_addr(addr)
-    if idx is not None:
-        string += "--- SOURCE ---{0}\n".format(
-          src_tc.nodes[src_tc.get_index_by_addr(addr)].list_data())
-    idx = trg_tc.get_index_by_addr(addr)
-    if idx is not None:
-        string += "--- TARGET ---{0}\n".format(
-          trg_tc.nodes[trg_tc.get_index_by_addr(addr)].list_data())
+def get_diff_data_str(src_tc, trg_tc):
+    """A simple wrap up for receiving basic diffs
+    Args:
+        src_tc: source test case
+        trg_tc: target test case
+    Returns:
+        formatted string of diff data
+    """
+    data = CANDiff().get_diff_data(src_tc, trg_tc)
+    string = ''
+    for src_diff, trg_diff in data:
+        if src_diff is not None:
+            string += "\n--- SOURCE: {0} ---\n".format(src_diff.addr)
+            for src_data in src_diff.data:
+                string += "{0}\n".format(src_data)
+        else:
+            string += "\n--- SOURCE: NONE ---\n"
+
+        if trg_diff is not None:
+            string += "\n--- TARGET: {0} ---\n".format(trg_diff.addr)
+            for trg_data in trg_diff.data:
+                string += "{0}\n".format(trg_data)
+        else:
+            # this normally should not happen
+            string += "\n--- TARGET: NONE ---\n"
+
     return string
 
 
-def save_as_text(f, src_tc, trg_tc, diff_addrs):
+def get_diff_data_csv(src_tc, trg_tc):
+    """A little less simple wrap up for receiving basic diffs for csv
+    Args:
+        src_tc: source test case
+        trg_tc: target test case
+    Returns:
+        formatted array for csv writer
+    """
+    data = CANDiff().get_diff_data(src_tc, trg_tc)
+    data_list = [[src_tc.filename, trg_tc.filename, "Address", "Time", "Data"]]
+    for src_diff, trg_diff in data:
+        if src_diff is not None:
+            for src_data in src_diff.data:
+                data_list.append(["Yes", "No", src_diff.addr,
+                                  src_data.time, src_data.data])
+        else:
+            data_list.append(["Yes", "No", "None", "None", "None"])
+
+        if trg_diff is not None:
+            for trg_data in trg_diff.data:
+                data_list.append(["No", "Yes", trg_diff.addr,
+                                  trg_data.time, trg_data.data])
+        else:
+            # normally should not happen, as trg is compared, not source
+            data_list.append(["No", "Yes", "None", "None", "None"])
+
+    return data
+
+
+def save_as_text(f, src_tc, trg_tc):
     f.write("Addresses that differ:\n")
     f.write(str(diff_addrs) + "\n")
-    for addr in diff_addrs:
-        f.write(get_data_diffs(src_tc, trg_tc, addr))
+    f.write(get_diff_data_str(src_tc, trg_tc))
 
 
-def save_as_csv(f, src_tc, trg_tc, diff_addrs):
-    raise NotImplementedError("Method not implemented")
+def save_as_csv(f, src_tc, trg_tc):
+    writer = csv.writer(f)
+    writer.writerows(get_diff_data_csv(src_tc, trg_tc))
 
 
 def console_interactive_mode(src_tc, trg_tc, diff_addrs):
@@ -72,10 +117,6 @@ def print_usage():
 
 
 if __name__ == "__main__":
-    """
-
-    """
-
     sourcefile = ''
     targetfile = ''
     outputfile = ''
@@ -122,14 +163,13 @@ if __name__ == "__main__":
 
     source_tc = CANTestCase(sourcefile)
     target_tc = CANTestCase(targetfile)
-    differ = CANDiff()
-    diff_addrs = differ.get_diff_addrs(source_tc, target_tc)
+    diff_addrs = CANDiff().get_diff_addrs(source_tc, target_tc)
     if outputfile:
         with open(outputfile, "wb") as f:
             if outputfrmt == "text":
-                save_as_text(f, source_tc, target_tc, diff_addrs)
+                save_as_text(f, source_tc, target_tc)
             else:
-                save_as_csv(f, source_tc, target_tc, diff_addrs)
+                save_as_csv(f, source_tc, target_tc)
         print("Saved as '{1}' type to {0}".format(outputfile, outputfrmt))
     else:
         console_interactive_mode(source_tc, target_tc, diff_addrs)
