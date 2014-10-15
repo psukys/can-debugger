@@ -34,7 +34,29 @@ class CANDiff:
                 addrs.append(node.addr)
         return addrs
 
-    def get_diff_data(self, src, trg):
+    def get_diff_data(self, src, trg, addr):
+        """Gets the difference through differentiated addresses
+        Args:
+            src: test case to be compared against
+            trg: test case to be compared
+        Returns:
+            a list of tuples where src diff data and trg diff data is
+        """
+        idx = src.get_index_by_addr(addr)
+        if idx is not None:
+            src_data = src.nodes[idx]
+        else:
+            src_data = None
+
+        idx = trg.get_index_by_addr(addr)
+        if idx is not None:
+            trg_data = trg.nodes[idx]
+        else:
+            trg_data = None
+
+        return (src_data, trg_data)
+
+    def get_diffs_data(self, src, trg):
         """Gets the difference through differentiated addresses
         Args:
             src: test case to be compared against
@@ -46,22 +68,7 @@ class CANDiff:
         diff_addrs = self.get_diff_addrs(src, trg)
 
         for addr in diff_addrs:
-            idx = src.get_index_by_addr(addr,)
-            
-            if idx is not None:
-                src_data = src.nodes[idx]
-            else:
-                src_data = None
-
-            idx = trg.get_index_by_addr(addr)
-
-            if idx is not None:
-                trg_data = trg.nodes[idx]
-            else:
-                #This normally should not happen
-                trg_data = None
-
-            data.append((src_data, trg_data))
+            data.append(self.get_diff_data(src, trg, addr))
 
         return data
 

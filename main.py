@@ -17,7 +17,28 @@ from src.data_structure import CANNode, CANTestCase
 from src.data_diff import CANDiff
 
 
-def get_diff_data_str(src_tc, trg_tc):
+def get_diff_data_str(src_tc, trg_tc, addr, outputgrp):
+    """Also simple
+    """
+    (src_diff, trg_diff) = CANDiff().get_diff_data(src_tc, trg_tc, addr)
+    string = ''
+    if src_diff is not None:
+        string += "\n--- SOURCE: {0} ---\n".format(src_diff.addr)
+        for src_data in src_diff.data:
+            string += "{0}\n".format(src_data)
+    else:
+        string += "\n--- SOURCE: NONE ---\n"
+
+    if trg_diff is not None:
+        string += "\n--- TARGET: {0} ---\n".format(trg_diff.addr)
+        for trg_data in trg_diff.data:
+            string += "{0}\n".format(trg_data)
+    else:
+        string += "\n--- TARGET: NONE ---\n"
+
+    return string
+
+def get_diffs_data_str(src_tc, trg_tc, outputgrp):
     """A simple wrap up for receiving basic diffs
     Args:
         src_tc: source test case
@@ -25,23 +46,10 @@ def get_diff_data_str(src_tc, trg_tc):
     Returns:
         formatted string of diff data
     """
-    data = CANDiff().get_diff_data(src_tc, trg_tc)
+    diff_addrs = CANDiff().get_diff_addrs(src_tc, trg_tc)
     string = ''
-    for src_diff, trg_diff in data:
-        if src_diff is not None:
-            string += "\n--- SOURCE: {0} ---\n".format(src_diff.addr)
-            for src_data in src_diff.data:
-                string += "{0}\n".format(src_data)
-        else:
-            string += "\n--- SOURCE: NONE ---\n"
-
-        if trg_diff is not None:
-            string += "\n--- TARGET: {0} ---\n".format(trg_diff.addr)
-            for trg_data in trg_diff.data:
-                string += "{0}\n".format(trg_data)
-        else:
-            # this normally should not happen
-            string += "\n--- TARGET: NONE ---\n"
+    for addr in diff_addrs:
+        string += get_diff_data_str(src_tc, trg_tc, addr, outputgrp)
 
     return string
 
@@ -75,18 +83,18 @@ def get_diff_data_csv(src_tc, trg_tc):
     return data
 
 
-def save_as_text(f, src_tc, trg_tc):
+def save_as_text(f, src_tc, trg_tc, outputgrp):
     f.write("Addresses that differ:\n")
     f.write(str(diff_addrs) + "\n")
-    f.write(get_diff_data_str(src_tc, trg_tc))
+    f.write(get_diffs_data_str(src_tc, trg_tc, outputgrp))
 
 
-def save_as_csv(f, src_tc, trg_tc):
+def save_as_csv(f, src_tc, trg_tc, outputgrp):
     writer = csv.writer(f)
     writer.writerows(get_diff_data_csv(src_tc, trg_tc))
 
 
-def console_interactive_mode(src_tc, trg_tc, diff_addrs):
+def console_interactive_mode(src_tc, trg_tc, diff_addrs, outputgrp):
     """Interactive mode via console
     """
     print("Addresses that have different data:")
@@ -94,10 +102,9 @@ def console_interactive_mode(src_tc, trg_tc, diff_addrs):
     addr_chosen = raw_input("Which address to display?: ")
     while addr_chosen in diff_addrs or addr_chosen == "all":
         if addr_chosen == "all":
-            for addr in diff_addrs:
-                print(get_data_diffs(src_tc, trg_tc, addr))
+            print(get_diffs_data_str(src_tc, trg_tc, outputgrp))
         else:
-            print(get_data_diffs(src_tc, trg_tc, addr_chosen))
+            print(get_diff_data_str(src_tc, trg_tc, addr_chosen, outputgrp))
 
         print(diff_addrs)
         addr_chosen = raw_input("Which address to display?: ")
@@ -114,6 +121,7 @@ def print_usage():
     print("\t\ttext - textual information format")
     print("\t\tcsv - spreadsheet information format")
     print("\t-h display this help")
+    print("\t-g group data")
 
 
 if __name__ == "__main__":
@@ -121,6 +129,7 @@ if __name__ == "__main__":
     targetfile = ''
     outputfile = ''
     outputfrmt = 'text'
+    outputgrp  = False
     """
     Option list:
         -s or --source for sourcefile
@@ -130,10 +139,10 @@ if __name__ == "__main__":
         -h for help
     """
     try:
-        optlist, args = getopt.getopt(sys.argv[1:], "s:t:o:f:h",
+        optlist, args = getopt.getopt(sys.argv[1:], "s:t:o:f:hg",
                                       ["source=", "target=",
                                        "output=", "format=",
-                                       "help"])
+                                       "help", "group"])
     except getopt.GetoptError as err:
         print str(err)
         print_usage()
@@ -150,6 +159,8 @@ if __name__ == "__main__":
             # set text to default
             if a == "csv":
                 outputfrmt = a
+        elif o in ("-g", "--group"):
+            outputgrp = True
         else:
             print_usage()
 
@@ -167,9 +178,9 @@ if __name__ == "__main__":
     if outputfile:
         with open(outputfile, "wb") as f:
             if outputfrmt == "text":
-                save_as_text(f, source_tc, target_tc)
+                save_as_text(f, source_tc, target_tc, outputgrp)
             else:
-                save_as_csv(f, source_tc, target_tc)
+                save_as_csv(f, source_tc, target_tc, outputgrp)
         print("Saved as '{1}' type to {0}".format(outputfile, outputfrmt))
     else:
-        console_interactive_mode(source_tc, target_tc, diff_addrs)
+        console_interactive_mode(source_tc, target_tc, diff_addrs, outputgrp)
