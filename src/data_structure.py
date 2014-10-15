@@ -7,7 +7,7 @@ class CANData:
     which is self implied by CAN dump
     """
 
-    def __init__(self, time=None, addr=None, data=None):
+    def __init__(self, time=None, data=None):
         """Initializer
         Args:
             time: time at which the data dump was taken
@@ -20,7 +20,7 @@ class CANData:
             self.data = data
 
     def __str__(self):
-        return "{0} {2}".format(self.time,
+        return "{0} {1}".format(self.time,
                                 self.data)
 
 
@@ -35,7 +35,7 @@ class CANNode:
             addr: the address representable in a string
         """
         self.addr = addr
-        self.data = {}
+        self.data = []
 
     def add_data(self, time, data):
         """Adds a single data point
@@ -43,7 +43,16 @@ class CANNode:
             time: time when can dump data point was taken
             data: data dump point
         """
-        self.data.update({time: data})
+        self.data.append(CANData(time, data))
+
+    def data_exists(self, data):
+        """Checks if specified data code is existant
+        Args:
+            data: data code
+        Returns:
+            True/False depending if existant
+        """
+        return any(d.data == data for d in self.data)
 
     def list_data(self):
         """List data list
@@ -102,6 +111,23 @@ class CANTestCase:
         for idx, val in enumerate(self.nodes):
             if val.addr == addr:
                 return idx
+
+    def get_data(self, addrs):
+        """
+        Simply returns a list of data points under given addresses
+        Args:
+            addrs: a string or an array of strings
+        Returns:
+            Node or an array of nodes
+        """
+        if isinstance(addrs, list):
+            nodes = []
+            for addr in addrs:
+                nodes.append(self.nodes[self.get_index_by_addr(addrs)])
+        else:
+            nodes = self.nodes[self.get_index_by_addr(addrs)]
+
+        return nodes
 
     def parse_line(self, line):
         """Parses a string filled with data
