@@ -178,6 +178,7 @@ if __name__ == "__main__":
             outputgrp = True
         else:
             print_usage()
+            sys.exit(2)
 
     # mandatory
     while not sourcefile:
