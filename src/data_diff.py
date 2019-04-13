@@ -47,13 +47,12 @@ class CANDiff:
             src_data = src.nodes[idx]
         else:
             src_data = None
-
+        
         idx = trg.get_index_by_addr(addr)
         if idx is not None:
             trg_data = trg.nodes[idx]
         else:
             trg_data = None
-
         return (src_data, trg_data)
 
     def get_diffs_data(self, src, trg):

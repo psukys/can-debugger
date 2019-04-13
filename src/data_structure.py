@@ -144,10 +144,10 @@ class CANTestCase:
         Args:
             line: string filled with data
         """
-        m = re.match(
-            "\((\d+\.\d+)\) (\S+) ([0-9a-fA-F]+)#([0-9a-fA-F]+)", line)
-
-        time = datetime.utcfromtimestamp(float(m.group(1)))
-        addr = m.group(3).strip()
-        data = m.group(4).strip()
+        #m = re.match(
+        #    "\((\d+\.\d+)\) (\S+) ([0-9a-fA-F]+)#([0-9a-fA-F]+)", line)
+        m = line.split()
+        time = '0'
+        addr = m[1]
+        data = ''.join(m[3:])
         return (time, addr, data)
